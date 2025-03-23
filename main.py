@@ -67,6 +67,7 @@ data["Geschlecht"] = data["Geschlecht_ID"].map({1: "Männlich", 2: "Weiblich"})
 
 # Dash-App initialization
 app = dash.Dash(__name__)
+server = app.server
 
 app.layout = html.Div([
     html.H1("Getötete im Straßenverkehr in Österreich", style={"textAlign": "center"}),

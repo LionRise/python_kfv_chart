@@ -1,0 +1,4 @@
+dash==3.0.0
+pandas==2.2.2
+plotly==6.0.1
+requests==2.31.0
