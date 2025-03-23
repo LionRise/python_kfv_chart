@@ -2,15 +2,13 @@ import dash
 from dash import dcc, html, Input, Output, State
 import pandas as pd
 import plotly.express as px
-import plotly.graph_objects as go
 import requests
 import io
 
-# API-URL für die Datenquelle
 API_URL = "https://dashboards.kfv.at/api/udm_verkehrstote/csv"
 
-# Bundesland-ID zu Name Mapping
-bundesland_map = {
+# Bundesland-ID to name map
+state_map = {
     1: "Burgenland",
     2: "Kärnten",
     3: "Niederösterreich",
@@ -22,8 +20,24 @@ bundesland_map = {
     9: "Wien",
 }
 
-# Wochentag Mapping
-wochentag_map = {
+# Month map
+month_map = {
+    1: "Januar",
+    2: "Februar",
+    3: "März",
+    4: "April",
+    5: "Mai",
+    6: "Juni",
+    7: "Juli",
+    8: "August",
+    9: "September",
+    10: "Oktober",
+    11: "November",
+    12: "Dezember"
+}
+
+# Weekday map
+weekday_map = {
     1: "Montag",
     2: "Dienstag",
     3: "Mittwoch",
@@ -33,11 +47,11 @@ wochentag_map = {
     7: "Sonntag",
 }
 
-# Daten abrufen
+# Data fetching
 response = requests.get(API_URL)
 data = pd.read_csv(io.StringIO(response.text))
 
-# Datentypen anpassen
+# Adapt datatypes
 data["Getötete"] = pd.to_numeric(data["Getötete"], errors="coerce")
 data["Berichtsjahr"] = data["Berichtsjahr"].astype(str)
 data["Bundesland_ID"] = pd.to_numeric(data["Bundesland_ID"], errors="coerce")
@@ -45,13 +59,13 @@ data["Monat_ID"] = pd.to_numeric(data["Monat_ID"], errors="coerce")
 data["Wochentag_ID"] = pd.to_numeric(data["Wochentag_ID"], errors="coerce")
 data["Geschlecht_ID"] = pd.to_numeric(data["Geschlecht_ID"], errors="coerce")
 
-# Mapping anwenden
-data["Bundesland"] = data["Bundesland_ID"].map(bundesland_map)
-data["Wochentag"] = data["Wochentag_ID"].map(wochentag_map)
-data["Monat"] = data["Monat_ID"].map(lambda x: f"{x:02d}")
+# Map the data to their commonly used names
+data["Bundesland"] = data["Bundesland_ID"].map(state_map)
+data["Wochentag"] = data["Wochentag_ID"].map(weekday_map)
+data["Monat"] = data["Monat_ID"].map(month_map)
 data["Geschlecht"] = data["Geschlecht_ID"].map({1: "Männlich", 2: "Weiblich"})
 
-# Dash-App initialisieren
+# Dash-App initialization
 app = dash.Dash(__name__)
 
 app.layout = html.Div([
@@ -140,7 +154,9 @@ app.layout = html.Div([
         Input("reset-filters", "n_clicks"),
     ]
 )
-def update_chart(bundeslaender, jahre, monate, wochentage, geschlechter, reset_clicks):
+
+# Updating the chart after filters have been selected
+def update_chart(bundeslaender, jahre, monate, wochentage, geschlechter):
     ctx = dash.callback_context
     triggered_id = ctx.triggered[0]['prop_id'].split('.')[0] if ctx.triggered else None
 
@@ -182,5 +198,6 @@ def update_chart(bundeslaender, jahre, monate, wochentage, geschlechter, reset_c
 
     return fig, dash.no_update, dash.no_update, dash.no_update, dash.no_update, dash.no_update
 
+# main
 if __name__ == "__main__":
-    app.run(debug=True)
+    app.run(debug=False)
