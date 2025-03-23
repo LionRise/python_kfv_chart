@@ -67,7 +67,6 @@ data["Geschlecht"] = data["Geschlecht_ID"].map({1: "Männlich", 2: "Weiblich"})
 
 # Dash-App initialization
 app = dash.Dash(__name__)
-server = app.server
 
 app.layout = html.Div([
     html.H1("Getötete im Straßenverkehr in Österreich", style={"textAlign": "center"}),
@@ -157,7 +156,7 @@ app.layout = html.Div([
 )
 
 # Updating the chart after filters have been selected
-def update_chart(bundeslaender, jahre, monate, wochentage, geschlechter):
+def update_chart(bundeslaender, jahre, monate, wochentage, geschlechter, reset_clicks):
     ctx = dash.callback_context
     triggered_id = ctx.triggered[0]['prop_id'].split('.')[0] if ctx.triggered else None
 
