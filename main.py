@@ -33,7 +33,7 @@ month_map = {
     9: "September",
     10: "Oktober",
     11: "November",
-    12: "Dezember"
+    12: "Dezember",
 }
 
 # Weekday map
@@ -68,73 +68,149 @@ data["Geschlecht"] = data["Geschlecht_ID"].map({1: "Männlich", 2: "Weiblich"})
 # Dash-App initialization
 app = dash.Dash(__name__)
 
-app.layout = html.Div([
-    html.H1("Getötete im Straßenverkehr in Österreich", style={"textAlign": "center"}),
-    html.P("nach Bundesland und Berichtsjahr", style={"textAlign": "center", "fontSize": "18px"}),
+app.layout = html.Div(
+    [
+        html.H1(
+            "Getötete im Straßenverkehr in Österreich", style={"textAlign": "center"}
+        ),
+        html.P(
+            "nach Bundesland und Berichtsjahr",
+            style={"textAlign": "center", "fontSize": "18px"},
+        ),
+        html.Div(
+            [
+                html.Div(
+                    [
+                        dcc.Dropdown(
+                            id="bundesland-filter",
+                            options=[
+                                {"label": bl, "value": bl}
+                                for bl in data["Bundesland"].dropna().unique()
+                            ],
+                            multi=True,
+                            placeholder="Wählen Sie ein Bundesland...",
+                            value=[],
+                        )
+                    ],
+                    style={
+                        "width": "19%",
+                        "display": "inline-block",
+                        "padding": "0 0.5%",
+                    },
+                ),
+                html.Div(
+                    [
+                        dcc.Dropdown(
+                            id="jahr-filter",
+                            options=[
+                                {"label": yr, "value": yr}
+                                for yr in data["Berichtsjahr"].dropna().unique()
+                            ],
+                            multi=True,
+                            placeholder="Jahr wählen...",
+                            value=[],
+                        )
+                    ],
+                    style={
+                        "width": "19%",
+                        "display": "inline-block",
+                        "padding": "0 0.5%",
+                    },
+                ),
+                html.Div(
+                    [
+                        dcc.Dropdown(
+                            id="monat-filter",
+                            options=[
+                                {"label": m, "value": m}
+                                for m in data["Monat"].dropna().unique()
+                            ],
+                            multi=True,
+                            placeholder="Monat wählen...",
+                            value=[],
+                        )
+                    ],
+                    style={
+                        "width": "19%",
+                        "display": "inline-block",
+                        "padding": "0 0.5%",
+                    },
+                ),
+                html.Div(
+                    [
+                        dcc.Dropdown(
+                            id="wochentag-filter",
+                            options=[
+                                {"label": wt, "value": wt}
+                                for wt in data["Wochentag"].dropna().unique()
+                            ],
+                            multi=True,
+                            placeholder="Wochentag wählen...",
+                            value=[],
+                        )
+                    ],
+                    style={
+                        "width": "19%",
+                        "display": "inline-block",
+                        "padding": "0 0.5%",
+                    },
+                ),
+                html.Div(
+                    [
+                        dcc.Dropdown(
+                            id="geschlecht-filter",
+                            options=[
+                                {"label": g, "value": g}
+                                for g in data["Geschlecht"].dropna().unique()
+                            ],
+                            multi=True,
+                            placeholder="Geschlecht wählen...",
+                            value=[],
+                        )
+                    ],
+                    style={
+                        "width": "19%",
+                        "display": "inline-block",
+                        "padding": "0 0.5%",
+                    },
+                ),
+            ],
+            style={"width": "100%", "textAlign": "center", "marginBottom": "10px"},
+        ),
+        html.Div(
+            html.Button(
+                "Alle Filter zurücksetzen",
+                id="reset-filters",
+                n_clicks=0,
+                style={"margin": "10px auto", "display": "block"},
+            ),
+        ),
+        dcc.Graph(id="verkehrs-tote-chart"),
+        html.Footer(
+            children=[
+                html.P(
+                    [
+                        "Quelle: ",
+                        html.A(
+                            "KFV - Kuratorium für Verkehrssicherheit",
+                            href="https://www.kfv.at/",
+                            target="_blank",
+                            rel="noopener noreferrer",
+                            className="underline hover:text-gray-700 transition",
+                        ),
+                    ]
+                )
+            ],
+            style={
+                "textAlign": "center",
+                "padding": "1em",
+                "fontSize": "14px",
+                "color": "#666",
+            },
+        ),
+    ]
+)
 
-    html.Div([
-        html.Div([
-            dcc.Dropdown(
-                id="bundesland-filter",
-                options=[{"label": bl, "value": bl} for bl in data["Bundesland"].dropna().unique()],
-                multi=True,
-                placeholder="Wählen Sie ein Bundesland...",
-                value=[]
-            )
-        ], style={"width": "19%", "display": "inline-block", "padding": "0 0.5%"}),
-
-        html.Div([
-            dcc.Dropdown(
-                id="jahr-filter",
-                options=[{"label": yr, "value": yr} for yr in data["Berichtsjahr"].dropna().unique()],
-                multi=True,
-                placeholder="Jahr wählen...",
-                value=[]
-            )
-        ], style={"width": "19%", "display": "inline-block", "padding": "0 0.5%"}),
-
-        html.Div([
-            dcc.Dropdown(
-                id="monat-filter",
-                options=[{"label": m, "value": m} for m in data["Monat"].dropna().unique()],
-                multi=True,
-                placeholder="Monat wählen...",
-                value=[]
-            )
-        ], style={"width": "19%", "display": "inline-block", "padding": "0 0.5%"}),
-
-        html.Div([
-            dcc.Dropdown(
-                id="wochentag-filter",
-                options=[{"label": wt, "value": wt} for wt in data["Wochentag"].dropna().unique()],
-                multi=True,
-                placeholder="Wochentag wählen...",
-                value=[]
-            )
-        ], style={"width": "19%", "display": "inline-block", "padding": "0 0.5%"}),
-
-        html.Div([
-            dcc.Dropdown(
-                id="geschlecht-filter",
-                options=[{"label": g, "value": g} for g in data["Geschlecht"].dropna().unique()],
-                multi=True,
-                placeholder="Geschlecht wählen...",
-                value=[]
-            )
-        ], style={"width": "19%", "display": "inline-block", "padding": "0 0.5%"}),
-    ], style={"width": "100%", "textAlign": "center", "marginBottom": "10px"}),
-
-    html.Div(
-        html.Button("Alle Filter zurücksetzen", id="reset-filters", n_clicks=0, style={"margin": "10px auto", "display": "block"}),
-    ),
-
-    dcc.Graph(id="verkehrs-tote-chart"),
-
-    html.Footer(
-        "Quelle: Statistik der Straßenverkehrsunfälle mit Personenschaden, Statistik Austria",
-        style={"textAlign": "center", "padding": "1em", "fontSize": "14px", "color": "#666"},
-    ),
-])
 
 @app.callback(
     [
@@ -152,15 +228,15 @@ app.layout = html.Div([
         Input("wochentag-filter", "value"),
         Input("geschlecht-filter", "value"),
         Input("reset-filters", "n_clicks"),
-    ]
+    ],
 )
 
 # Updating the chart after filters have been selected
 def update_chart(bundeslaender, jahre, monate, wochentage, geschlechter, reset_clicks):
     ctx = dash.callback_context
-    triggered_id = ctx.triggered[0]['prop_id'].split('.')[0] if ctx.triggered else None
+    triggered_id = ctx.triggered[0]["prop_id"].split(".")[0] if ctx.triggered else None
 
-    if triggered_id == 'reset-filters':
+    if triggered_id == "reset-filters":
         return dash.no_update, [], [], [], [], []
 
     df = data.copy()
@@ -175,7 +251,9 @@ def update_chart(bundeslaender, jahre, monate, wochentage, geschlechter, reset_c
     if geschlechter:
         df = df[df["Geschlecht"].isin(geschlechter)]
 
-    grouped = df.groupby(["Berichtsjahr", "Bundesland"], as_index=False)["Getötete"].sum()
+    grouped = df.groupby(["Berichtsjahr", "Bundesland"], as_index=False)[
+        "Getötete"
+    ].sum()
 
     fig = px.area(
         grouped,
@@ -196,7 +274,15 @@ def update_chart(bundeslaender, jahre, monate, wochentage, geschlechter, reset_c
         title_x=0.5,
     )
 
-    return fig, dash.no_update, dash.no_update, dash.no_update, dash.no_update, dash.no_update
+    return (
+        fig,
+        dash.no_update,
+        dash.no_update,
+        dash.no_update,
+        dash.no_update,
+        dash.no_update,
+    )
+
 
 # main
 if __name__ == "__main__":
